@@ -1,10 +1,11 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "data.h"
 
 
 AVL* AVL_insert(AVL* root, T_Data data, int* len) {
-    /* Insere um novo nodo contendo 'data' na árvore de raiz 'root', aumentando
-    o valor de 'len', caso a inserção seja bem sucedida. */
+    /* Insere um novo nodo contendo 'data' na árvore de raiz 'root', 
+    aumentando o valor de 'len', caso a inserção seja bem sucedida. */
 
     if (!root) {
         /* Caso 'raiz vazia':
@@ -93,4 +94,14 @@ int AVL_height(AVL* root) {
         return root->l_child->height + 1;
     else
         return root->r_child->height + 1;
+}
+
+
+void AVL_print(AVL* root) {
+    /* Imprime os elementos da árvore em ordem, com o caminhamento
+    central à esquerda */
+
+    AVL_print(root->l_child);
+    printf("[%s]\n", root->data.word);
+    AVL_print(root->r_child);
 }
