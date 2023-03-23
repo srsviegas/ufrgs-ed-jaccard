@@ -14,12 +14,13 @@ typedef struct AVL {
     T_Data data;
     struct AVL* l_child;
     struct AVL* r_child;
+    int height;
 } AVL;
 
-AVL* AVL_insert(AVL* root, T_Data word, int* len);
+AVL* AVL_insert(AVL* root, T_Data data, int* len);
 AVL* AVL_rotate_left(AVL* root);
 AVL* AVL_rotate_right(AVL* root);
-int AVL_balance(AVL* root);
+int AVL_height(AVL* root);
 int AVL_search(AVL* root, T_Data data);
 void AVL_print(AVL* root);
 
