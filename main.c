@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     textB = AVL_from_file(file, &lenB, stopwords);
     if (isDebugging) {
         printf("\n\nPalavras Texto B (AVL):\n");
-        //AVL_print(textB);
+        AVL_print(textB);
     }
     fclose(file);
 
