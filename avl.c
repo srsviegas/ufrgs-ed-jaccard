@@ -1,6 +1,36 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "data.h"
+
+
+AVL* AVL_from_file_stopwords(FILE* file) {
+    /* Cria uma AVL para stopwords a partir de um arquivo de texto */
+
+    AVL* tree = NULL;
+
+    char c, word[WSIZE];
+    int word_len = 0; 
+    while ((c = fgetc(file)) != EOF) {
+        if (isalpha(c)) {
+            if (word_len < (WSIZE + 1)) {
+                word[word_len] = c;
+                word_len++;
+            }
+        }
+        else if (word_len > 0) {
+            word[word_len] = '\0';
+            word_len = 0;
+            T_Data data;
+            strcpy(data.word, word);
+            printf("%s\n", data.word);
+            tree = AVL_insert(tree, data, NULL);
+        }
+    }
+
+    return tree;
+}
 
 
 AVL* AVL_insert(AVL* root, T_Data data, int* len) {
@@ -15,7 +45,8 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
         new->r_child = NULL;
         new->height = 1;
         new->data = data;
-        (*len)++;
+        if (len)
+            (*len)++;
         return new;
     }
     int lexicoCmp = strcmp(data.word, root->data.word);
@@ -65,8 +96,8 @@ AVL* AVL_rotate_left(AVL* root) {
     z->l_child = root;
     root = z;
 
-    root->height = height(root);
-    z->height = height(z);
+    root->height = AVL_height(root);
+    z->height = AVL_height(z);
 
     return root;
 }
@@ -80,8 +111,8 @@ AVL* AVL_rotate_right(AVL* root) {
     u->r_child = root;
     root = u;
 
-    root->height = height(root);
-    u->height = height(u);
+    root->height = AVL_height(root);
+    u->height = AVL_height(u);
 
     return root;
 }
