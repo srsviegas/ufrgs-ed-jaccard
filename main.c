@@ -23,17 +23,39 @@ algoritmo:
 #include "jaccard.h"
 
 
+#define DEBUG 1
+
+
 int main(int argc, char *argv[])
 {
+    int is_debugging = DEBUG;
+
     if (argc != 4) {
         printf("ERRO: Número incorreto de parâmetros.\n"
-        "A chamada deve ser: jaccard <texto1> <texto1> <stopwords>\n");
+        "A chamada deve ser: jaccard <texto1> <texto2> <stopwords>\n");
         return 1;
     }
 
     setlocale(LC_ALL, "Portuguese");
     clock_t start = clock();
 
+    FILE* file = fopen(argv[3], "r");
+
+    lst* textoA = NULL;
+    AVL* textoB = NULL;
+    AVL* stopwords = NULL;
+
+    // Definindo a AVL das stopwords
+    if (!file) {
+        printf("ERRO: Não foi possível abrir a lista de stopwords.\n"
+        "Nome do arquivo: '%s'", argv[3]);
+        return 1;
+    }
+    stopwords = AVL_from_file_stopwords(file);
+    if (is_debugging)
+        AVL_print(stopwords);
+
+    // Calcula qual dos dois textos é maior
 
 
     printf("Tempo de execução: %.2f s\n",
