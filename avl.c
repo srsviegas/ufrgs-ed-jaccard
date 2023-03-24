@@ -6,6 +6,43 @@
 #include "data.h"
 
 
+AVL* AVL_from_file(FILE* file, int* len, AVL* stopwords) {
+    /* Cria uma AVL para as palavras de um arquivo de texto */
+
+    AVL* root = NULL;
+
+    char c, word[WSIZE];
+    int word_len = 0; 
+    while ((c = fgetc(file)) != EOF && word_len < WSIZE) {
+        if (isalpha(c)) {
+            // Se c for letra, adiciona c no buffer
+            word[word_len] = tolower(c);
+            word_len++;
+        }
+        else if (word_len > 0) {
+            /* Se c não for letra, e tiver palavra no buffer, 
+            adiciona a palavra na AVL, caso não seja uma stopword */
+            word[word_len] = '\0';
+            word_len = 0;
+            T_Data data;
+            strcpy(data.word, word);
+            if (!(AVL_search(stopwords, data)))
+                root = AVL_insert(root, data, NULL);
+        }
+    }
+    if (word_len > 0) {
+        /* Se ainda tiver palavra no buffer,
+        adiciona a palavra na AVL */
+        word[word_len] = '\0';
+        word_len = 0;
+        T_Data data;
+        strcpy(data.word, word);
+        if (!(AVL_search(stopwords, data)))
+                root = AVL_insert(root, data, NULL);
+    }
+}
+
+
 AVL* AVL_from_file_stopwords(FILE* file) {
     /* Cria uma AVL para stopwords a partir de um arquivo de texto */
 
@@ -152,9 +189,46 @@ int AVL_balance(AVL* root) {
 }
 
 
+int AVL_search(AVL* root, T_Data data) {
+    /* Busca uma palavra na AVL e retorna 1, caso encontre, ou 0. */
+
+    if (!root) {
+        return 0;
+    }
+
+    int lexicoCmp = strcmp(data.word, root->data.word);
+
+    if (lexicoCmp == 0) {
+        return 1;   // Os itens são iguais, data está na lista
+    }
+    else if (lexicoCmp < 0) {
+        // data < root
+        if (!(root->l_child)) {
+            // Root não possui filho esquerdo, data não está na lista
+            return 0;
+        }
+        else {
+            // Busca data na sub-árvore esquerda
+            return AVL_search(root->l_child, data);
+        }
+    }
+    else {
+        // data > root
+        if (!(root->r_child)) {
+            // Root não possui filho direito, data não está na lista
+            return 1;
+        }
+        else {
+            // Busca data na sub-árvore direita
+            return AVL_search(root->r_child, data);
+        }
+    }
+}
+
+
 void AVL_print(AVL* root) {
     /* Imprime os elementos da árvore em ordem, com o caminhamento
-    central à esquerda */
+    central à esquerda. */
 
     if (!root)
         return;
