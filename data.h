@@ -37,6 +37,7 @@ typedef struct lst {
     struct lst* next;
 } lst;
 
+lst* lst_from_file(FILE* file, int* len, AVL* stopwords);
 lst* lst_insert(lst* list, T_Data data, int* len);
 void lst_print(lst* list);
 
