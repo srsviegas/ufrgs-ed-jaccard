@@ -88,18 +88,22 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
     // Calcula o fator de balanceamento da árvore
     int balance = AVL_balance(root);
 
-    // Balanceia a árvore
+    // Realiza o balanceamento da árvore
     if (lexicoCmp < 0 && balance > 1) {
+        // Rotação à direita
         root = AVL_rotate_right(root);
     }
     else if (lexicoCmp > 0 && balance < -1) {
+        // Rotação à esquerda
         root = AVL_rotate_left(root);
     }
     else if (lexicoCmp > 0 && balance > 1) {
+        // Rotação dupla à direita
         root->l_child = AVL_rotate_left(root->l_child);
         root = AVL_rotate_right(root);
     }
     else if (lexicoCmp < 0 && balance < -1) {
+        // Rotação dupla à esquerda
         root->r_child = AVL_rotate_right(root->r_child);
         root = AVL_rotate_left(root);
     }
@@ -206,6 +210,6 @@ void AVL_print(AVL* root) {
         return;
 
     AVL_print(root->l_child);
-    printf("[%s]\n", root->data.word);
+    printf("[%s] (%d)\n", root->data.word, AVL_balance(root));
     AVL_print(root->r_child);
 }
