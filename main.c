@@ -9,7 +9,7 @@ algoritmo:
 
     3. Busca palavras de A em B, contando len(A intersect B)
 
-    4. Retorna sim_tex = len(A intersect B)/(len(A) + len(B)) - 1
+    4. Retorna jaccard
 
 */
 
@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "Portuguese");
     clock_t start = clock();
 
-    lst* textoA = NULL;         // TADs para listas de palavras
-    AVL* textoB = NULL;
+    lst* textA = NULL;         // TADs para listas de palavras
+    AVL* textB = NULL;
     AVL* stopwords = NULL;
 
     int lenA = 0;               // Comprimento das listas
@@ -60,23 +60,34 @@ int main(int argc, char *argv[])
         return 1;
     }
     stopwords = AVL_from_file_stopwords(file);
-    if (isDebugging)
+    if (isDebugging) {
+        printf("Stopwords (AVL):\n");
         AVL_print(stopwords);
+    }
     fclose(file);
 
     // Define a lista do menor texto
     file = fopen(argv[smallestFile], "r");
-    textoA = lst_from_file(file, &lenA, stopwords);
-    if (isDebugging)
-        lst_print(textoA);
+    textA = lst_from_file(file, &lenA, stopwords);
+    if (isDebugging) {
+        printf("\n\nPalavras Texto A (lista):\n");
+        lst_print(textA);
+    }
     fclose(file);
 
     // Define a AVL do maior texto
     file = fopen(argv[largestFile], "r");
-    textoB = AVL_from_file(file, &lenB, stopwords);
-    if (isDebugging)
-        AVL_print(textoB);
+    textB = AVL_from_file(file, &lenB, stopwords);
+    if (isDebugging) {
+        printf("\n\nPalavras Texto B (AVL):\n");
+        //AVL_print(textB);
+    }
     fclose(file);
+
+    // Imprime os resultados
+    printf("[%s]: %d palavras distintas\n", argv[smallestFile], lenA);
+    printf("[%s]: %d palavras distintas\n", argv[largestFile], lenB);
+    printf("Jaccard = %.2f\n", jaccard(textA, textB, lenA, lenB));
 
     printf("Tempo de execução: %.2f s\n",
     (double)(clock() - start)/CLOCKS_PER_SEC);
@@ -93,7 +104,7 @@ int largest_file(char* filename1, char* filename2) {
 
     // Encontra o tamanho do arquivo 1
     FILE* file = fopen(filename1, "r");
-    is (!file) {
+    if (!file) {
         printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
         "Nome do arquivo: '%s'", filename1);
     }
@@ -103,7 +114,7 @@ int largest_file(char* filename1, char* filename2) {
 
     // Encontra o tamanho do arquivo 2
     file = fopen(filename2, "r");
-    is (!file) {
+    if (!file) {
         printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
         "Nome do arquivo: '%s'", filename2);
     }
