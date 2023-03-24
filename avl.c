@@ -11,34 +11,19 @@ AVL* AVL_from_file(FILE* file, int* len, AVL* stopwords) {
 
     AVL* root = NULL;
 
-    char c, word[WSIZE];
-    int word_len = 0; 
-    while ((c = fgetc(file)) != EOF && word_len < WSIZE) {
-        if (isalpha(c)) {
-            // Se c for letra, adiciona c no buffer
-            word[word_len] = tolower(c);
-            word_len++;
-        }
-        else if (word_len > 0) {
-            /* Se c não for letra, e tiver palavra no buffer, 
-            adiciona a palavra na AVL, caso não seja uma stopword */
-            word[word_len] = '\0';
-            word_len = 0;
+    char *word, row[1000];
+    char delimiter[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
+
+    while (fgets(row, 1000, file)) {
+        word = strtok(row, delimiter);
+        while (word) {
             T_Data data;
-            strcpy(data.word, word);
-            if (!(AVL_search(stopwords, data)))
+            strcpy(data.word, strlwr(word));
+            if (!(AVL_search(stopwords, data))) {
                 root = AVL_insert(root, data, len);
+            }
+            word = strtok(NULL, delimiter);
         }
-    }
-    if (word_len > 0) {
-        /* Se ainda tiver palavra no buffer,
-        adiciona a palavra na AVL */
-        word[word_len] = '\0';
-        word_len = 0;
-        T_Data data;
-        strcpy(data.word, word);
-        if (!(AVL_search(stopwords, data)))
-                root = AVL_insert(root, data, len);
     }
 
     return root;
@@ -50,32 +35,17 @@ AVL* AVL_from_file_stopwords(FILE* file) {
 
     AVL* root = NULL;
 
-    char c, word[WSIZE];
-    int word_len = 0; 
-    while ((c = fgetc(file)) != EOF && word_len < WSIZE) {
-        if (isalpha(c)) {
-            // Se c for letra, adiciona c no buffer
-            word[word_len] = tolower(c);
-            word_len++;
-        }
-        else if (word_len > 0) {
-            /* Se c não for letra, e tiver palavra no buffer, 
-            adiciona a palavra na AVL */
-            word[word_len] = '\0';
-            word_len = 0;
+    char *word, row[1000];
+    char delimiter[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
+
+    while (fgets(row, 1000, file)) {
+        word = strtok(row, delimiter);
+        while (word) {
             T_Data data;
-            strcpy(data.word, word);
+            strcpy(data.word, strlwr(word));
             root = AVL_insert(root, data, NULL);
+            word = strtok(NULL, delimiter);
         }
-    }
-    if (word_len > 0) {
-        /* Se ainda tiver palavra no buffer,
-        adiciona a palavra na AVL */
-        word[word_len] = '\0';
-        word_len = 0;
-        T_Data data;
-        strcpy(data.word, word);
-        root = AVL_insert(root, data, NULL);
     }
 
     return root;
@@ -218,7 +188,7 @@ int AVL_search(AVL* root, T_Data data) {
         // data > root
         if (!(root->r_child)) {
             // Root não possui filho direito, data não está na lista
-            return 1;
+            return 0;
         }
         else {
             // Busca data na sub-árvore direita
