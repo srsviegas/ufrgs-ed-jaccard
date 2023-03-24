@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "data.h"
 
@@ -10,34 +11,19 @@ lst* lst_from_file(FILE* file, int* len, AVL* stopwords) {
 
     lst* list = NULL;
 
-    char c, word[WSIZE];
-    int word_len = 0; 
-    while ((c = fgetc(file)) != EOF && word_len < WSIZE) {
-        if (isalpha(c)) {
-            // Se c for letra, adiciona c no buffer
-            word[word_len] = tolower(c);
-            word_len++;
-        }
-        else if (word_len > 0) {
-            /* Se c não for letra, e tiver palavra no buffer, 
-            adiciona a palavra na lista, caso não seja uma stopword */
-            word[word_len] = '\0';
-            word_len = 0;
+    char *word, row[1000];
+    char delimiter[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
+
+    while (fgets(row, 1000, file)) {
+        word = strtok(row, delimiter);
+        while (word) {
             T_Data data;
-            strcpy(data.word, word);
-            if (!(AVL_search(stopwords, data)))
+            strcpy(data.word, strlwr(word));
+            if (!(AVL_search(stopwords, data))) {
                 list = lst_insert(list, data, len);
+            }
+            word = strtok(NULL, delimiter);
         }
-    }
-    if (word_len > 0) {
-        /* Se ainda tiver palavra no buffer,
-        adiciona a palavra na AVL */
-        word[word_len] = '\0';
-        word_len = 0;
-        T_Data data;
-        strcpy(data.word, word);
-        if (!(AVL_search(stopwords, data)))
-                list = lst_insert(list, data, len);
     }
 
     return list;
@@ -55,25 +41,29 @@ lst* lst_insert(lst* list, T_Data data, int* len) {
 
     if (!list) {
         /* Caso 'lista vazia': retorna a nova lista */
+        if (len)
+            (*len)++;
         return new;
     }
 
-    lst* ptr = list;
+    lst *ptr = list, *last;
 
     do {
         /* Busca o último elemento, enquanto checa se a palavra
         já está presente na lista */
         if (strcmp(ptr->data.word, data.word) == 0) {
             /* Caso 'palavra já está na lista': não realiza nada */
+            free(new);
             return list;
         }
-        if (ptr->next) {
-            ptr = ptr->next;
-        }
-    } while (ptr->next);
+        last = ptr;
+        ptr = ptr->next;
+    } while (ptr);
 
     // Coloca o novo elemento no final da lista, e retorna a lista
-    ptr->next = new;
+    last->next = new;
+    if (len)
+        (*len)++;
     return list;
 }
 
