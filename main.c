@@ -22,13 +22,15 @@ algoritmo:
 #include "data.h"
 #include "jaccard.h"
 
+#define DEBUG 0
 
-#define DEBUG 1
+
+int largest_file(char* filename1, char* filename2);
 
 
 int main(int argc, char *argv[])
 {
-    int is_debugging = DEBUG;
+    int isDebugging = DEBUG;
 
     if (argc != 4) {
         printf("ERRO: Número incorreto de parâmetros.\n"
@@ -39,27 +41,75 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "Portuguese");
     clock_t start = clock();
 
-    FILE* file = fopen(argv[3], "r");
-
-    lst* textoA = NULL;
+    lst* textoA = NULL;         // TADs para listas de palavras
     AVL* textoB = NULL;
     AVL* stopwords = NULL;
 
-    // Definindo a AVL das stopwords
+    int lenA = 0;               // Comprimento das listas
+    int lenB = 0;
+
+    // Calcula qual dos dois textos é maior
+    int largestFile = largest_file(argv[1], argv[2]);
+    int smallestFile = (largestFile == 1)? 2: 1;
+
+    // Define a AVL das stopwords
+    FILE* file = fopen(argv[3], "r");
     if (!file) {
         printf("ERRO: Não foi possível abrir a lista de stopwords.\n"
         "Nome do arquivo: '%s'", argv[3]);
         return 1;
     }
     stopwords = AVL_from_file_stopwords(file);
-    if (is_debugging)
+    if (isDebugging)
         AVL_print(stopwords);
+    fclose(file);
 
-    // Calcula qual dos dois textos é maior
+    // Define a lista do menor texto
+    file = fopen(argv[smallestFile], "r");
+    textoA = lst_from_file(file, &lenA, stopwords);
+    if (isDebugging)
+        lst_print(textoA);
+    fclose(file);
 
+    // Define a AVL do maior texto
+    file = fopen(argv[largestFile], "r");
+    textoB = AVL_from_file(file, &lenB, stopwords);
+    if (isDebugging)
+        AVL_print(textoB);
+    fclose(file);
 
     printf("Tempo de execução: %.2f s\n",
     (double)(clock() - start)/CLOCKS_PER_SEC);
 
     return 0;
+}
+
+
+int largest_file(char* filename1, char* filename2) {
+    /* Compara dois arquivos e retorna 1 se o arquivo em filename1 for maior
+    que o arquivo em filename2, ou 2, caso contrário. */
+
+    long int sfile1, sfile2;
+
+    // Encontra o tamanho do arquivo 1
+    FILE* file = fopen(filename1, "r");
+    is (!file) {
+        printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
+        "Nome do arquivo: '%s'", filename1);
+    }
+    fseek(file, 0, SEEK_END);
+    sfile1 = ftell(file);
+    fclose(file);
+
+    // Encontra o tamanho do arquivo 2
+    file = fopen(filename2, "r");
+    is (!file) {
+        printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
+        "Nome do arquivo: '%s'", filename2);
+    }
+    fseek(file, 0, SEEK_END);
+    sfile2 = ftell(file);
+    fclose(file);
+
+    return (sfile1 > sfile2)? 1 : 2;
 }
