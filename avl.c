@@ -27,7 +27,7 @@ AVL* AVL_from_file(FILE* file, int* len, AVL* stopwords) {
             T_Data data;
             strcpy(data.word, word);
             if (!(AVL_search(stopwords, data)))
-                root = AVL_insert(root, data, NULL);
+                root = AVL_insert(root, data, len);
         }
     }
     if (word_len > 0) {
@@ -38,8 +38,10 @@ AVL* AVL_from_file(FILE* file, int* len, AVL* stopwords) {
         T_Data data;
         strcpy(data.word, word);
         if (!(AVL_search(stopwords, data)))
-                root = AVL_insert(root, data, NULL);
+                root = AVL_insert(root, data, len);
     }
+
+    return root;
 }
 
 
