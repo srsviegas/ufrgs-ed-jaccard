@@ -85,6 +85,9 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
         return root;
     }
 
+    // Calcula a altura da raíz
+    root->height = AVL_height(root);
+
     // Calcula o fator de balanceamento da árvore
     int balance = AVL_balance(root);
 
@@ -120,57 +123,76 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
 }
 
 
-AVL* AVL_rotate_left(AVL* root) {
-    /* Realiza uma rotação à esquerda na árvore de raiz 'root'. */
+AVL* AVL_rotate_left(AVL* p) {
+    /* Realiza uma rotação à esquerda na árvore de raiz 'p'. */
 
-    AVL* z = root->r_child;
-    root->r_child = z->l_child;
-    z->l_child = root;
-    root = z;
+    /* Faz as atribuições: 
+        1) z era filho direito de p 
+        2) t2 era filho esquerdo do filho direito de p
+        3) t2 se torna filho direito de p
+        4) p se torna filho esquerdo de z */
+    AVL* z = p->r_child;
+    AVL* t2 = z->l_child;
+    p->r_child = t2;
+    z->l_child = p;
 
-    root->height = AVL_height(root);
+    // Atualiza a altura de nós que tiveram filhos alterados
+    p->height = AVL_height(p);
     z->height = AVL_height(z);
 
-    return root;
+    // Retorna a nova raíz da árvore (z)
+    return z;
 }
 
 
-AVL* AVL_rotate_right(AVL* root) {
-    /* Realiza uma rotação à direita na árvore de raiz 'root'. */
+AVL* AVL_rotate_right(AVL* p) {
+    /* Realiza uma rotação à direita na árvore de raiz 'p'. */
 
-    AVL* u = root->l_child;
-    root->l_child = u->r_child;
-    u->r_child = root;
-    root = u;
+    /* Faz as atribuições:
+        1) u era filho esquerdo de p
+        2) t2 era filho direito do filho esquerdo de p
+        3) t2 se torna filho esquerdo de p
+        4) p se torna filho direito de u */
+    AVL* u = p->l_child;
+    AVL* t2 = u->r_child;
+    p->l_child = t2;
+    u->r_child = p;
 
-    root->height = AVL_height(root);
+    // Atualiza a altura de nós que tiveram filhos alterados
+    p->height = AVL_height(p);
     u->height = AVL_height(u);
 
-    return root;
+    // Retorna a nova raíz da árvore (u)
+    return u;
 }
 
 
 int AVL_height(AVL* root) {
     /* Retorna o valor da altura de uma árvore de raiz 'root'. */
 
-    if (root->l_child->height > root->r_child->height)
-        return root->l_child->height + 1;
-    else
-        return root->r_child->height + 1;
+    if (!root)
+        return 0;
+
+    // Armazena a altura dos dois nodos filhos de root
+    int l_height = root->l_child ? root->l_child->height : 0;
+    int r_height = root->r_child ? root->r_child->height : 0;
+
+    // Retorna a maior altura entre os dois mais 1
+    return ((l_height > r_height) ? l_height : r_height) + 1;
 }
 
 
 int AVL_balance(AVL* root) {
     /* Retorna o valor do fator de balanceamento da raiz 'root'. */
 
-    if (!(root->l_child) && !(root->r_child))
+    if (!root)
         return 0;
-    else if (!(root->l_child))
-        return 0 - root->r_child->height;
-    else if (!(root->r_child))
-        return root->l_child->height;
-    else
-        return root->l_child->height - root->r_child->height;
+
+    // Armazena a altura dos dois odos filhos de root
+    int l_height = root->l_child ? root->l_child->height : 0;
+    int r_height = root->r_child ? root->r_child->height : 0;
+
+    return l_height - r_height;
 }
 
 
@@ -220,6 +242,7 @@ void AVL_print(AVL* root) {
     }
 
     AVL_print(root->l_child);
-    printf("[%s] (%d)\n", root->data.word, AVL_balance(root));
+    printf("[%s] (B = %d, H = %d)\n", 
+        root->data.word, AVL_balance(root), root->height);
     AVL_print(root->r_child);
 }
