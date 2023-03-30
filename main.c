@@ -6,6 +6,7 @@ texto B, ignorando as palavras dadas por uma lista de stopwords*/
 #include <locale.h>
 #include <time.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "data.h"
 #include "jaccard.h"
@@ -17,9 +18,14 @@ int main(int argc, char *argv[])
     int is_debugging = DEBUG;
 
     if (argc != 4) {
-        printf("ERRO: Número incorreto de parâmetros.\n"
-        "A chamada deve ser: jaccard <texto1> <texto2> <stopwords>\n");
-        return 1;
+        if (argc == 5 && strcmp("-debug", argv[4]) == 0) {
+            is_debugging = 1;
+        }
+        else {
+            printf("ERRO: Número incorreto de parâmetros.\n"
+            "A chamada deve ser: jaccard <texto1> <texto2> <stopwords>\n");
+            return 1;
+        }
     }
 
     setlocale(LC_ALL, "Portuguese");
