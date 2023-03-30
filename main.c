@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
     printf("[%s]: %d palavras distintas\n", argv[largestFile], lenB);
     printf("Jaccard = %.2f\n", jaccard(textA, textB, lenA, lenB));
 
-    printf("Tempo de execução: %.2f s\n",
-    (double)(clock() - start)/CLOCKS_PER_SEC);
+    printf("Tempo de execução: %.5f ms\n",
+    (double)(clock() - start)/CLOCKS_PER_SEC*1000);
 
     return 0;
 }
