@@ -12,17 +12,17 @@ AVL* AVL_from_file(FILE* file, int* len, AVL* stopwords) {
     AVL* root = NULL;
 
     char *word, row[1000];
-    char delimiter[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
+    char delimiters[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
 
     while (fgets(row, 1000, file)) {
-        word = strtok(row, delimiter);
+        word = strtok(row, delimiters);
         while (word) {
             T_Data data;
             strcpy(data.word, strlwr(word));
             if (!(AVL_search(stopwords, data))) {
                 root = AVL_insert(root, data, len);
             }
-            word = strtok(NULL, delimiter);
+            word = strtok(NULL, delimiters);
         }
     }
 
@@ -36,15 +36,15 @@ AVL* AVL_from_file_stopwords(FILE* file) {
     AVL* root = NULL;
 
     char *word, row[1000];
-    char delimiter[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
+    char delimiters[]= {" 0123456789-.,&*%\?!;/'@\"$#=~><()][}{:\n\t_"};
 
     while (fgets(row, 1000, file)) {
-        word = strtok(row, delimiter);
+        word = strtok(row, delimiters);
         while (word) {
             T_Data data;
             strcpy(data.word, strlwr(word));
             root = AVL_insert(root, data, NULL);
-            word = strtok(NULL, delimiter);
+            word = strtok(NULL, delimiters);
         }
     }
 
@@ -68,13 +68,13 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
             (*len)++;
         return new;
     }
-    int lexicoCmp = strcmp(data.word, root->data.word);
-    if (lexicoCmp < 0) {
+    int cmp = strcmp(data.word, root->data.word);
+    if (cmp < 0) {
         /* Se a palavra for lexicograficamente menor que a da raiz,
         insere a palavra na sua subárvore esquerda */
         root->l_child = AVL_insert(root->l_child, data, len);
     }
-    else if (lexicoCmp > 0) {
+    else if (cmp > 0) {
         /* Se a palavra for lexicograficamente maior que a da raiz,
         insere a palavra na sua subárvore direita */
         root->r_child = AVL_insert(root->r_child, data, len);
@@ -89,32 +89,33 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
     int balance = AVL_balance(root);
 
     // Calcula as comparações com os filhos da raiz, para descobrir onde foi inserido
-    int lexCmpL = root->l_child? strcmp(data.word, root->l_child->data.word): 0;
-    int lexCmpR = root->r_child? strcmp(data.word, root->r_child->data.word): 0;
+    int l_cmp = root->l_child ? strcmp(data.word, root->l_child->data.word) : 0;
+    int r_cmp = root->r_child ? strcmp(data.word, root->r_child->data.word) : 0;
 
     // Realiza o balanceamento da árvore
-    if (lexCmpL < 0 && balance > 1) {
+    if (l_cmp < 0 && balance > 1) {
         /* Inserido à esquerda do filho esquerdo e FB > 1,
         Rotação à direita */
         root = AVL_rotate_right(root);
     }
-    else if (lexCmpR > 0 && balance < -1) {
+    else if (r_cmp > 0 && balance < -1) {
         /* Inserido à direita do filho direito e FB < -1,
         Rotação à esquerda */
         root = AVL_rotate_left(root);
     }
-    else if (lexCmpL > 0 && balance > 1) {
+    else if (l_cmp > 0 && balance > 1) {
         /* Inserido à direita do filho esquerdo e FB > 1,
         Rotação dupla à direita */
         root->l_child = AVL_rotate_left(root->l_child);
         root = AVL_rotate_right(root);
     }
-    else if (lexCmpR < 0 && balance < -1) {
+    else if (r_cmp < 0 && balance < -1) {
         /* Inserido à esquerda do filho direito e FB < -1,
         Rotação dupla à esquerda */
         root->r_child = AVL_rotate_right(root->r_child);
         root = AVL_rotate_left(root);
     }
+
     return root;
 }
 
@@ -180,15 +181,15 @@ int AVL_search(AVL* root, T_Data data) {
         return 0;
     }
 
-    int lexicoCmp = strcmp(data.word, root->data.word);
+    int cmp = strcmp(data.word, root->data.word);
 
-    if (lexicoCmp == 0) {
-        return 1;   // Os itens são iguais, data está na lista
+    if (cmp == 0) {
+        return 1;   // Os itens são iguais, data está na AVL
     }
-    else if (lexicoCmp < 0) {
+    else if (cmp < 0) {
         // data < root
         if (!(root->l_child)) {
-            // Root não possui filho esquerdo, data não está na lista
+            // Root não possui filho esquerdo, data não está na AVL
             return 0;
         }
         else {
@@ -199,7 +200,7 @@ int AVL_search(AVL* root, T_Data data) {
     else {
         // data > root
         if (!(root->r_child)) {
-            // Root não possui filho direito, data não está na lista
+            // Root não possui filho direito, data não está na AVL
             return 0;
         }
         else {
@@ -214,8 +215,9 @@ void AVL_print(AVL* root) {
     /* Imprime os elementos da árvore em ordem, com o caminhamento
     central à esquerda. */
 
-    if (!root)
+    if (!root) {
         return;
+    }
 
     AVL_print(root->l_child);
     printf("[%s] (%d)\n", root->data.word, AVL_balance(root));
