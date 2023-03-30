@@ -1,17 +1,5 @@
 /* O programa retorna o coeficiente de similaridade textual entre um texto A e um
-texto B, ignorando as palavras dadas por uma lista de stopwords, atravï¿½s do seguinte
-algoritmo:
-
-    1. Carrega stopwords em uma AVL
-
-    2. Carrega o texto menor em uma lista e o texto maior em uma AVL, ignorando palavras
-    repetidas, stopwords e separadores, enquanto conta len(A) e len(B)
-
-    3. Busca palavras de A em B, contando len(A intersect B)
-
-    4. Retorna jaccard
-
-*/
+texto B, ignorando as palavras dadas por uma lista de stopwords*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,13 +12,9 @@ algoritmo:
 
 #define DEBUG 0
 
-
-int largest_file(char* filename1, char* filename2);
-
-
 int main(int argc, char *argv[])
 {
-    int isDebugging = DEBUG;
+    int is_debugging = DEBUG;
 
     if (argc != 4) {
         printf("ERRO: Número incorreto de parâmetros.\n"
@@ -41,16 +25,12 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "Portuguese");
     clock_t start = clock();
 
-    lst* textA = NULL;         // TADs para listas de palavras
-    AVL* textB = NULL;
+    AVL* A_words = NULL;         // TADs para árvores de palavras
+    AVL* B_words = NULL;
     AVL* stopwords = NULL;
 
-    int lenA = 0;               // Comprimento das listas
-    int lenB = 0;
-
-    // Calcula qual dos dois textos é maior
-    int largestFile = largest_file(argv[1], argv[2]);
-    int smallestFile = (largestFile == 1)? 2: 1;
+    int A_len = 0;               // Comprimento das árvores
+    int B_len = 0;
 
     // Define a AVL das stopwords
     FILE* file = fopen(argv[3], "r");
@@ -60,67 +40,37 @@ int main(int argc, char *argv[])
         return 1;
     }
     stopwords = AVL_from_file_stopwords(file);
-    if (isDebugging) {
-        printf("Stopwords (AVL):\n");
+    if (is_debugging) {
+        printf("Stopwords:\n");
         AVL_print(stopwords);
     }
     fclose(file);
 
-    // Define a lista do menor texto
-    file = fopen(argv[smallestFile], "r");
-    textA = lst_from_file(file, &lenA, stopwords);
-    if (isDebugging) {
-        printf("\n\nPalavras Texto A (lista):\n");
-        lst_print(textA);
+    // Define a AVL do texto 1
+    file = fopen(argv[1], "r");
+    A_words = AVL_from_file(file, &A_len, stopwords);
+    if (is_debugging) {
+        printf("\n\nPalavras Texto A:\n");
+        AVL_print(A_words);
     }
     fclose(file);
 
-    // Define a AVL do maior texto
-    file = fopen(argv[largestFile], "r");
-    textB = AVL_from_file(file, &lenB, stopwords);
-    if (isDebugging) {
-        printf("\n\nPalavras Texto B (AVL):\n");
-        AVL_print(textB);
+    // Define a AVL do texto 2
+    file = fopen(argv[2], "r");
+    B_words = AVL_from_file(file, &B_len, stopwords);
+    if (is_debugging) {
+        printf("\n\nPalavras Texto B:\n");
+        AVL_print(B_words);
     }
     fclose(file);
 
     // Imprime os resultados
-    printf("[%s]: %d palavras distintas\n", argv[smallestFile], lenA);
-    printf("[%s]: %d palavras distintas\n", argv[largestFile], lenB);
-    printf("Jaccard = %.2f\n", jaccard(textA, textB, lenA, lenB));
+    printf("[%s]: %d palavras distintas\n", argv[1], A_len);
+    printf("[%s]: %d palavras distintas\n", argv[2], B_len);
+    printf("Jaccard = %.2f\n", jaccard(A_words, B_words, A_len, B_len));
 
     printf("Tempo de execução: %.5f ms\n",
     (double)(clock() - start)/CLOCKS_PER_SEC*1000);
 
     return 0;
-}
-
-
-int largest_file(char* filename1, char* filename2) {
-    /* Compara dois arquivos e retorna 1 se o arquivo em filename1 for maior
-    que o arquivo em filename2, ou 2, caso contrário. */
-
-    long int sfile1, sfile2;
-
-    // Encontra o tamanho do arquivo 1
-    FILE* file = fopen(filename1, "r");
-    if (!file) {
-        printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
-        "Nome do arquivo: '%s'", filename1);
-    }
-    fseek(file, 0, SEEK_END);
-    sfile1 = ftell(file);
-    fclose(file);
-
-    // Encontra o tamanho do arquivo 2
-    file = fopen(filename2, "r");
-    if (!file) {
-        printf("ERRO: Não foi possível abrir o arquivo de texto.\n"
-        "Nome do arquivo: '%s'", filename2);
-    }
-    fseek(file, 0, SEEK_END);
-    sfile2 = ftell(file);
-    fclose(file);
-
-    return (sfile1 > sfile2)? 1 : 2;
 }

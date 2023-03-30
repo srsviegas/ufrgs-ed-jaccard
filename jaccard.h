@@ -3,7 +3,7 @@
 
 #include "data.h"
 
-int intersection(lst* A, AVL* B);
-float jaccard(lst* A, AVL* B, int lenA, int lenB);
+void intersection(AVL* A, AVL* B, int* accumulator);
+float jaccard(AVL* A, AVL* B, int A_len, int B_len);
 
 #endif

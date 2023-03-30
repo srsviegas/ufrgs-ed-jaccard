@@ -1,30 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "jaccard.h"
 #include "data.h"
 
-int intersection(lst* A, AVL* B) {
-    /* Calcula a intersecção entre uma lista A e uma AVL B, buscando
-    cada elemento da lista na AVL e contando os elementos compartilhados. */
+void intersection(AVL* A, AVL* B, int* accumulator) {
+    /* Calcula a intersecção entre duas árvores AVL armazenando o resultado
+    em um acumulador. */
 
-    int intersection = 0;
-
-    while (A) {
-        if (AVL_search(B, A->data))
-            intersection++;
-        A = A->next;
+    if (!A || !B) {
+        return;
     }
 
-    return intersection;
+    intersection(A->l_child, B, accumulator);
+    if (AVL_search(B, A->data)) {
+        (*accumulator)++;
+    }
+    intersection(A->r_child, B, accumulator);
 }
 
-float jaccard(lst* A, AVL* B, int lenA, int lenB) {
-    /* Calcula o coeficiente de Jaccard entre um texto armazenado em uma lista
-    e um texto armazenado em uma AVL. */
+float jaccard(AVL* A, AVL* B, int A_len, int B_len) {
+    /* Calcula o coeficiente de Jaccard de dois textos, com suas palavras
+    armazenadas em árvores AVL. */
 
-    int txtIntersect = intersection(A, B);
-    int txtUnion = lenA + lenB - txtIntersect;
+    // Calcula a intersecção entre as árvores
+    int intersect_len = 0;
+    intersection(A, B, &intersect_len);
 
-    return (float)txtIntersect/txtUnion;
+    // Calcula a união entre as árvores
+    int union_len = A_len + B_len - intersect_len;
+
+    // Calcula o coeficiente de Jaccard
+    return (float)intersect_len/union_len;
 }

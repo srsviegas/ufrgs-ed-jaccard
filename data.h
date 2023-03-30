@@ -30,16 +30,4 @@ int AVL_search(AVL* root, T_Data data);
 void AVL_print(AVL* root);
 
 
-// Tipo Lista
-
-typedef struct lst {
-    T_Data data;
-    struct lst* next;
-} lst;
-
-lst* lst_from_file(FILE* file, int* len, AVL* stopwords);
-lst* lst_insert(lst* list, T_Data data, int* len);
-void lst_print(lst* list);
-
-
 #endif
