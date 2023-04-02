@@ -96,27 +96,31 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
     int r_cmp = root->r_child ? strcmp(data.word, root->r_child->data.word) : 0;
 
     // Realiza o balanceamento da árvore
-    if (l_cmp < 0 && balance > 1) {
-        /* Inserido à esquerda do filho esquerdo e FB > 1,
-        Rotação à direita */
-        root = AVL_rotate_right(root);
+    if (balance > 1) {
+        if (l_cmp < 0) {
+            /* Inserido à esquerda do filho esquerdo e FB > 1,
+            Rotação à direita */
+            root = AVL_rotate_right(root);
+        }
+        else {
+            /* Inserido à direita do filho esquerdo e FB > 1,
+            Rotação dupla à direita */
+            root->l_child = AVL_rotate_left(root->l_child);
+            root = AVL_rotate_right(root);
+        }
     }
-    else if (r_cmp > 0 && balance < -1) {
-        /* Inserido à direita do filho direito e FB < -1,
-        Rotação à esquerda */
-        root = AVL_rotate_left(root);
-    }
-    else if (l_cmp > 0 && balance > 1) {
-        /* Inserido à direita do filho esquerdo e FB > 1,
-        Rotação dupla à direita */
-        root->l_child = AVL_rotate_left(root->l_child);
-        root = AVL_rotate_right(root);
-    }
-    else if (r_cmp < 0 && balance < -1) {
-        /* Inserido à esquerda do filho direito e FB < -1,
-        Rotação dupla à esquerda */
-        root->r_child = AVL_rotate_right(root->r_child);
-        root = AVL_rotate_left(root);
+    else if (balance < -1) {
+        if (r_cmp > 0) {
+            /* Inserido à direita do filho direito e FB < -1,
+            Rotação à esquerda */
+            root = AVL_rotate_left(root);
+        }
+        else {
+            /* Inserido à esquerda do filho direito e FB < -1,
+            Rotação dupla à esquerda */
+            root->r_child = AVL_rotate_right(root->r_child);
+            root = AVL_rotate_left(root);
+        }
     }
 
     return root;
@@ -137,8 +141,8 @@ AVL* AVL_rotate_left(AVL* p) {
     z->l_child = p;
 
     // Atualiza a altura de nós que tiveram filhos alterados
-    z->height = AVL_height(z);
     p->height = AVL_height(p);
+    z->height = AVL_height(z);
 
     // Retorna a nova raíz da árvore (z)
     return z;
