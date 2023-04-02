@@ -137,8 +137,8 @@ AVL* AVL_rotate_left(AVL* p) {
     z->l_child = p;
 
     // Atualiza a altura de nós que tiveram filhos alterados
-    p->height = AVL_height(p);
     z->height = AVL_height(z);
+    p->height = AVL_height(p);
 
     // Retorna a nova raíz da árvore (z)
     return z;
