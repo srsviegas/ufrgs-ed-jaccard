@@ -1,6 +1,6 @@
 /* O programa retorna o coeficiente de similaridade textual entre um texto A e um
 texto B, ignorando as palavras dadas por uma lista de stopwords*/
-
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
@@ -54,6 +54,11 @@ int main(int argc, char *argv[])
 
     // Define a AVL do texto 1
     file = fopen(argv[1], "r");
+    if (!file) {
+        printf("ERRO: Não foi possível abrir o texto 1.\n"
+        "Nome do arquivo: '%s'", argv[1]);
+        return 1;
+    }
     A_words = AVL_from_file(file, &A_len, stopwords);
     if (is_debugging) {
         printf("\n\nPalavras Texto A:\n");
@@ -63,6 +68,11 @@ int main(int argc, char *argv[])
 
     // Define a AVL do texto 2
     file = fopen(argv[2], "r");
+    if (!file) {
+        printf("ERRO: Não foi possível abrir o texto 2.\n"
+        "Nome do arquivo: '%s'", argv[2]);
+        return 1;
+    }
     B_words = AVL_from_file(file, &B_len, stopwords);
     if (is_debugging) {
         printf("\n\nPalavras Texto B:\n");
