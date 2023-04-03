@@ -91,12 +91,10 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
     // Calcula o fator de balanceamento da árvore
     int balance = AVL_balance(root);
 
-    // Calcula as comparações com os filhos da raiz, para descobrir onde foi inserido
-    int l_cmp = root->l_child ? strcmp(data.word, root->l_child->data.word) : 0;
-    int r_cmp = root->r_child ? strcmp(data.word, root->r_child->data.word) : 0;
-
     // Realiza o balanceamento da árvore
     if (balance > 1) {
+        // Comparação com o filho esquerdo
+        int l_cmp = root->l_child ? strcmp(data.word, root->l_child->data.word) : 0;
         if (l_cmp < 0) {
             /* Inserido à esquerda do filho esquerdo e FB > 1,
             Rotação à direita */
@@ -110,6 +108,8 @@ AVL* AVL_insert(AVL* root, T_Data data, int* len) {
         }
     }
     else if (balance < -1) {
+        // Comparação com o filho direito
+        int r_cmp = root->r_child ? strcmp(data.word, root->r_child->data.word) : 0;
         if (r_cmp > 0) {
             /* Inserido à direita do filho direito e FB < -1,
             Rotação à esquerda */
