@@ -9,7 +9,7 @@ no cálculo do coeficiente de Jaccard entre dois documentos de texto.
 ## Executando o programa
 
 Para executar o programa, é necessário ter o GCC (GNU Compiler Collection) instalado na máquina e três arquivos como entrada:
-dois textos a serem comparados e um arquivo de stopwords contendo as palavras que devem ser ignoradas na análisa. O programa
+dois textos a serem comparados e um arquivo de stopwords contendo as palavras que devem ser ignoradas na análise. O programa
 é executado através da linha de comando com a sintaxe:
 ```
 ./jaccard texto1.txt texto2.txt stopwords.txt
